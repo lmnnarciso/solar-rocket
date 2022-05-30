@@ -58,3 +58,9 @@ export const UpdateMission = (missions: Mission[], mission: Mission): Mission[] 
     return missionItem
   });
 };
+
+export const DeleteMission = (missions: Mission[], mission: Mission): Mission[] => {
+  return missions.filter(missionItem => {
+    return missionItem.id !== mission.id
+  });
+};

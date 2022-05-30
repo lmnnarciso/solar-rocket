@@ -24,6 +24,7 @@ import {
   Alert,
   Box,
   CircularProgress,
+  DialogContentText,
 } from "@mui/material";
 
 import {
@@ -207,6 +208,43 @@ const updateMission = async (mission: any) => {
     }
   );
 };
+
+const deleteMission = async (mission: any) => {
+  return await fetchGraphQL(
+    `
+    mutation DeleteMission($mission:  MissionInputUpdate!){
+      deleteMission(
+      mission: $mission
+    ) {
+      id
+      title
+      operator
+      launch {
+        date
+        vehicle
+        location {
+          name
+          longitude
+          latitude
+        }
+      }
+      orbit {
+        periapsis
+        apoapsis
+        inclination
+      }
+      payload {
+        capacity
+        available
+      }
+    }
+  }
+  `,
+    {
+      mission,
+    }
+  );
+};
 interface FormValue {
   title: String;
   operator: String;
@@ -222,6 +260,7 @@ const Missions = (): JSX.Element => {
     title: "",
     operator: "",
   });
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const [newEditMissionOpen, setNewEditMissionOpen] = useState<boolean>(false);
   const [selectedMissionIndex, setSelectedMissionIndex] = useState<
@@ -241,6 +280,16 @@ const Missions = (): JSX.Element => {
 
   const handleNewMissionClose = () => {
     setNewMissionOpen(false);
+  };
+
+  const handleClickOpenDeleteDialog = (key: number) => {
+    setSelectedMissionIndex(key);
+    setIsDeleteOpen(true);
+  };
+
+  const handleClickCloseDeleteDialog = () => {
+    setSelectedMissionIndex(null);
+    setIsDeleteOpen(false);
   };
 
   const handleNewEditMissionOpen = (index: number) => {
@@ -293,6 +342,22 @@ const Missions = (): JSX.Element => {
     }
   };
 
+  const handleDeleteMission = async () => {
+    console.log({ selectedMissionIndex, missions });
+    if (missions && selectedMissionIndex !== null) {
+      console.log("here");
+      const data = await deleteMission({
+        ...missions[selectedMissionIndex],
+      });
+
+      const updatedMissions = missions.filter(
+        (mission) => data.data.deleteMission.id !== mission.id
+      );
+      setMissions(updatedMissions);
+      handleClickCloseDeleteDialog();
+    }
+  };
+
   const handleTempLaunchDateChange = (newValue: Date | null) => {
     setTempLaunchDate(newValue);
   };
@@ -314,6 +379,7 @@ const Missions = (): JSX.Element => {
         console.log(err);
       });
   }, [sortField, sortDesc]);
+
   useEffect(() => {
     if (selectedMissionIndex && newEditMissionOpen && missions) {
       setFormValue({
@@ -327,6 +393,7 @@ const Missions = (): JSX.Element => {
       setTempLaunchDate(missions[selectedMissionIndex]["launch"]["date"]);
     }
   }, [selectedMissionIndex]);
+
   return (
     <AppLayout title="Missions">
       <Container maxWidth="lg">
@@ -353,23 +420,30 @@ const Missions = (): JSX.Element => {
         {missions ? (
           <Grid container spacing={2}>
             {" "}
-            {missions.map((missions: Mission, key: number) => (
+            {missions.map((mission: Mission, key: number) => (
               <Grid item key={key}>
                 <Card sx={{ width: 275, height: 200 }}>
                   <CardHeader
-                    title={missions.title}
-                    subheader={new Date(missions.launch.date).toDateString()}
+                    title={mission.title}
+                    subheader={new Date(mission.launch.date).toDateString()}
                   />
                   <CardContent>
-                    <Typography noWrap>{missions.operator}</Typography>
+                    <Typography noWrap>{mission.operator}</Typography>
                   </CardContent>
                   <CardActions>
                     <Button
+                      variant="outlined"
                       onClick={() => {
                         handleNewEditMissionOpen(key);
                       }}
                     >
                       Edit
+                    </Button>
+                    <Button
+                      color="error"
+                      onClick={() => handleClickOpenDeleteDialog(key)}
+                    >
+                      Delete
                     </Button>
                   </CardActions>
                 </Card>
@@ -509,6 +583,34 @@ const Missions = (): JSX.Element => {
             <Button onClick={handleUpdateMission}>Edit</Button>
           </DialogActions>
         </Dialog>
+
+        <div>
+          <Dialog
+            open={isDeleteOpen}
+            onClose={handleClickCloseDeleteDialog}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">Warning!</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                This process will delete the data forever.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClickCloseDeleteDialog} autoFocus>
+                Disagree
+              </Button>
+              <Button
+                onClick={handleDeleteMission}
+                color="error"
+                variant="contained"
+              >
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
       </Container>
       <Snackbar
         open={errMessage != null}
