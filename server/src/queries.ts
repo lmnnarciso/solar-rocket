@@ -42,6 +42,19 @@ export const CreateMission = (mission: Mission): Mission => {
     .update(uuidv4())
     .digest("hex")
     .substring(32);
-  
+
   return mission;
+};
+
+export const UpdateMission = (missions: Mission[], mission: Mission): Mission[] => {
+
+  return missions.map(missionItem => {
+    if(missionItem.id === mission.id){
+      return {
+        ...missionItem,
+        ...mission
+      }
+    }
+    return missionItem
+  });
 };

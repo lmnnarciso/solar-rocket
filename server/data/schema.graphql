@@ -5,9 +5,19 @@ type Query {
 
 type Mutation {
   createMission(mission: MissionInput): Mission
+  updateMission(mission: MissionInputUpdate): Mission!
 }
 
 input MissionInput {
+  title: String!
+  operator: String!
+  launch: LaunchInput!
+  orbit: OrbitInput!
+  payload: PayloadInput!
+}
+
+input MissionInputUpdate {
+  id: String!
   title: String!
   operator: String!
   launch: LaunchInput!
@@ -28,9 +38,9 @@ input LocationInput {
 }
 
 input OrbitInput {
-  periapsis: Int!
-  apoapsis: Int!
-  inclination: Int!
+  periapsis: Float!
+  apoapsis: Float!
+  inclination: Float!
 }
 
 input PayloadInput {
@@ -71,9 +81,9 @@ type Location {
 }
 
 type Orbit {
-  periapsis: Int!
-  apoapsis: Int!
-  inclination: Int!
+  periapsis: Float!
+  apoapsis: Float!
+  inclination: Float!
 }
 
 type Payload {

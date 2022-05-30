@@ -64,6 +64,21 @@ const getMissions = async (
       operator
       launch {
         date
+        vehicle
+        location {
+          name
+          longitude
+          latitude
+        }
+      }
+      orbit {
+        periapsis
+        apoapsis
+        inclination
+      }
+      payload {
+        capacity
+        available
       }
     }
   }
@@ -149,9 +164,52 @@ const createMissions = async (mission: any) => {
   );
 };
 
+const updateMission = async (mission: any) => {
+  const { date, ...restMission } = mission;
+  return await fetchGraphQL(
+    `
+    mutation UpdateMission($mission:  MissionInputUpdate!){
+      updateMission(
+      mission: $mission
+    ) {
+      id
+      title
+      operator
+      launch {
+        date
+        vehicle
+        location {
+          name
+          longitude
+          latitude
+        }
+      }
+      orbit {
+        periapsis
+        apoapsis
+        inclination
+      }
+      payload {
+        capacity
+        available
+      }
+    }
+  }
+  `,
+    {
+      mission: {
+        ...restMission,
+        launch: {
+          ...restMission.launch,
+          date: date,
+        },
+      },
+    }
+  );
+};
 interface FormValue {
-  title: string;
-  operator: string;
+  title: String;
+  operator: String;
 }
 const Missions = (): JSX.Element => {
   const [missions, setMissions] = useState<Mission[] | null>(null);
@@ -164,6 +222,11 @@ const Missions = (): JSX.Element => {
     title: "",
     operator: "",
   });
+
+  const [newEditMissionOpen, setNewEditMissionOpen] = useState<boolean>(false);
+  const [selectedMissionIndex, setSelectedMissionIndex] = useState<
+    number | null
+  >(null);
 
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
@@ -178,6 +241,16 @@ const Missions = (): JSX.Element => {
 
   const handleNewMissionClose = () => {
     setNewMissionOpen(false);
+  };
+
+  const handleNewEditMissionOpen = (index: number) => {
+    setNewEditMissionOpen(true);
+    setSelectedMissionIndex(index);
+  };
+
+  const handleNewEditMissionClose = () => {
+    setNewEditMissionOpen(false);
+    setSelectedMissionIndex(null);
   };
 
   const handleSetFormValue = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,6 +274,25 @@ const Missions = (): JSX.Element => {
     handleNewMissionClose();
   };
 
+  const handleUpdateMission = async () => {
+    if (missions && selectedMissionIndex) {
+      const data = await updateMission({
+        ...missions[selectedMissionIndex],
+        ...formValue,
+        date: tempLaunchDate,
+      });
+
+      const updatedMissions = missions.map((mission) => {
+        if (data.data.updateMission.id === mission.id) {
+          return data.data.updateMission;
+        }
+        return mission;
+      });
+      setMissions(updatedMissions);
+      handleNewEditMissionClose();
+    }
+  };
+
   const handleTempLaunchDateChange = (newValue: Date | null) => {
     setTempLaunchDate(newValue);
   };
@@ -222,7 +314,19 @@ const Missions = (): JSX.Element => {
         console.log(err);
       });
   }, [sortField, sortDesc]);
-
+  useEffect(() => {
+    if (selectedMissionIndex && newEditMissionOpen && missions) {
+      setFormValue({
+        title: missions?.[selectedMissionIndex]["title"]
+          ? missions[selectedMissionIndex]["title"]
+          : "",
+        operator: missions?.[selectedMissionIndex]["operator"]
+          ? missions?.[selectedMissionIndex]["operator"]
+          : "",
+      });
+      setTempLaunchDate(missions[selectedMissionIndex]["launch"]["date"]);
+    }
+  }, [selectedMissionIndex]);
   return (
     <AppLayout title="Missions">
       <Container maxWidth="lg">
@@ -260,7 +364,13 @@ const Missions = (): JSX.Element => {
                     <Typography noWrap>{missions.operator}</Typography>
                   </CardContent>
                   <CardActions>
-                    <Button>Edit</Button>
+                    <Button
+                      onClick={() => {
+                        handleNewEditMissionOpen(key);
+                      }}
+                    >
+                      Edit
+                    </Button>
                   </CardActions>
                 </Card>
               </Grid>
@@ -335,6 +445,61 @@ const Missions = (): JSX.Element => {
             <Button onClick={handleSubmitNewMission}>Save</Button>
           </DialogActions>
         </Dialog>
+        <Dialog
+          open={newEditMissionOpen}
+          onClose={handleNewEditMissionClose}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Edit Mission</DialogTitle>
+          <DialogContent>
+            <Grid container direction="column" spacing={2}>
+              <Grid item>
+                <TextField
+                  autoFocus
+                  id="name"
+                  label="Title"
+                  name="title"
+                  variant="standard"
+                  fullWidth
+                  value={formValue.title}
+                  onChange={handleSetFormValue}
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  autoFocus
+                  id="desc"
+                  label="Operator"
+                  variant="standard"
+                  name="operator"
+                  fullWidth
+                  value={formValue.operator}
+                  onChange={handleSetFormValue}
+                />
+              </Grid>
+
+              <Grid item>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DateTimePicker
+                    minDate={new Date()}
+                    minTime={new Date()}
+                    label="Launch Date"
+                    value={tempLaunchDate}
+                    onChange={handleTempLaunchDateChange}
+                    renderInput={(params) => (
+                      <TextField variant="standard" {...params} />
+                    )}
+                  />
+                </LocalizationProvider>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleNewEditMissionClose}>Cancel</Button>
+            <Button onClick={handleUpdateMission}>Edit</Button>
+          </DialogActions>
+        </Dialog>
       </Container>
       <Snackbar
         open={errMessage != null}
@@ -349,5 +514,7 @@ const Missions = (): JSX.Element => {
     </AppLayout>
   );
 };
+
+const EditDialog = () => {};
 
 export { Missions };
