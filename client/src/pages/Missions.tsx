@@ -267,6 +267,10 @@ const Missions = (): JSX.Element => {
     number | null
   >(null);
 
+  const [updateSubmitting, setUpdateSubmitting] = useState<boolean>(false);
+  const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
+
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
     setErrMessage(null);
@@ -311,6 +315,7 @@ const Missions = (): JSX.Element => {
   };
 
   const handleSubmitNewMission = async () => {
+    setCreateSubmitting(true);
     const mission = await createMissions({
       ...formValue,
       date: tempLaunchDate,
@@ -320,11 +325,14 @@ const Missions = (): JSX.Element => {
     } else {
       setMissions([mission.data.createMission]);
     }
+
+    setCreateSubmitting(false);
     handleNewMissionClose();
   };
 
   const handleUpdateMission = async () => {
     if (missions && selectedMissionIndex) {
+      setUpdateSubmitting(true);
       const data = await updateMission({
         ...missions[selectedMissionIndex],
         ...formValue,
@@ -338,14 +346,15 @@ const Missions = (): JSX.Element => {
         return mission;
       });
       setMissions(updatedMissions);
+
+      setUpdateSubmitting(false);
       handleNewEditMissionClose();
     }
   };
 
   const handleDeleteMission = async () => {
-    console.log({ selectedMissionIndex, missions });
     if (missions && selectedMissionIndex !== null) {
-      console.log("here");
+      setDeleteSubmitting(true);
       const data = await deleteMission({
         ...missions[selectedMissionIndex],
       });
@@ -354,6 +363,7 @@ const Missions = (): JSX.Element => {
         (mission) => data.data.deleteMission.id !== mission.id
       );
       setMissions(updatedMissions);
+      setDeleteSubmitting(false);
       handleClickCloseDeleteDialog();
     }
   };
@@ -521,10 +531,11 @@ const Missions = (): JSX.Element => {
               disabled={
                 formValue.title.length === 0 ||
                 formValue.operator.length === 0 ||
-                tempLaunchDate === null
+                tempLaunchDate === null ||
+                createSubmitting
               }
             >
-              Save
+              {createSubmitting && <CircularProgress />} Save
             </Button>
           </DialogActions>
         </Dialog>
@@ -580,7 +591,9 @@ const Missions = (): JSX.Element => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleNewEditMissionClose}>Cancel</Button>
-            <Button onClick={handleUpdateMission}>Edit</Button>
+            <Button onClick={handleUpdateMission}>
+              {updateSubmitting && <CircularProgress />} Edit
+            </Button>
           </DialogActions>
         </Dialog>
 
@@ -599,14 +612,15 @@ const Missions = (): JSX.Element => {
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClickCloseDeleteDialog} autoFocus>
-                Disagree
+                Cancel
               </Button>
               <Button
                 onClick={handleDeleteMission}
                 color="error"
                 variant="contained"
+                disabled={deleteSubmitting}
               >
-                Agree
+                {deleteSubmitting && <CircularProgress />} Delete
               </Button>
             </DialogActions>
           </Dialog>
