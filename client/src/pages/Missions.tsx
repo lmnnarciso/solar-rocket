@@ -267,7 +267,7 @@ const Missions = (): JSX.Element => {
       date: tempLaunchDate,
     });
     if (missions) {
-      setMissions([...missions, mission.data.createMission]);
+      setMissions([mission.data.createMission, ...missions]);
     } else {
       setMissions([mission.data.createMission]);
     }
@@ -442,7 +442,16 @@ const Missions = (): JSX.Element => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleNewMissionClose}>Cancel</Button>
-            <Button onClick={handleSubmitNewMission}>Save</Button>
+            <Button
+              onClick={handleSubmitNewMission}
+              disabled={
+                formValue.title.length === 0 ||
+                formValue.operator.length === 0 ||
+                tempLaunchDate === null
+              }
+            >
+              Save
+            </Button>
           </DialogActions>
         </Dialog>
         <Dialog
