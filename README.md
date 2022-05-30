@@ -20,13 +20,13 @@ This is a simple project designed to not only test your React skills, but also t
 
 ## Tasks
 
-1. On the "Missions" page you can currently you can sort the data by "Title" or "Date". The "sort direction" button does not work. Make it work so that when clicking the sort button, the order of the sorting is reversed.
-1. Add the ability to sort missions by "operator".
-1. The weather page currently has no content. We need to show a five-day live weather forecast on this page. You can use https://www.weatherapi.com/ or any other free weather API service to pull the forecast data. Make it look pretty.
-1. Someone started creating a dialog to create new missions, but they never finished it (and it doesn't even have the right fields). Update the dialog to create new missions with the necessary data and use the API to save the data so it shows up on the missions page.
+1. On the "Missions" page you can currently you can sort the data by "Title" or "Date". The "sort direction" button does not work. Make it work so that when clicking the sort button, the order of the sorting is reversed. - DONE
+1. Add the ability to sort missions by "operator". - DONE
+1. The weather page currently has no content. We need to show a five-day live weather forecast on this page. You can use https://www.weatherapi.com/ or any other free weather API service to pull the forecast data. Make it look pretty. - DONE
+1. Someone started creating a dialog to create new missions, but they never finished it (and it doesn't even have the right fields). Update the dialog to create new missions with the necessary data and use the API to save the data so it shows up on the missions page. - DONE
 
 ## Extra Credit (if you really want to impress us 😊)
-1. Add the ability for users to modify and delete missions.
+1. Add the ability for users to modify and delete missions. - DONE
 1. Add any other improvements that you think the mission page can use.
 
 &nbsp;
