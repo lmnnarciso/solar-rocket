@@ -1,10 +1,10 @@
-const fetchGraphQL = async (text: String, variables: any[]) => {
+const fetchGraphQL = async (text: String, variables: any) => {
   const response : Response = await fetch("/graphql", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       query: text,
-      variables,
+      variables: variables,
     }),
   });
 

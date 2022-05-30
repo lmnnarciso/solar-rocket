@@ -72,6 +72,87 @@ const getMissions = async (
   );
 };
 
+const createMissions = async (mission: any) => {
+  const randomLocation = () => {
+    const LOCATION = [
+      "KSC LC-39A",
+      "Vandenberg SLC-4",
+      "Cape Canaveral SLC-40",
+      "Vandenberg SLC-6",
+      "KSC LC-39B",
+    ];
+
+    return LOCATION[Math.floor(Math.random() * 4)];
+  };
+  const randomVehicle = () => {
+    const VEHICLES = ["Nimrod V", "Vulture 9", "Epsilon IV"];
+    return VEHICLES[Math.floor(Math.random() * 3)];
+  };
+
+  const randomNumber = (num: number) => {
+    return Math.floor(Math.random() * num);
+  };
+
+  const randomData = {
+    title: mission.title,
+    operator: mission.operator,
+    launch: {
+      date: mission.date,
+      vehicle: randomVehicle(),
+      location: {
+        name: randomLocation(),
+        longitude: randomNumber(100),
+        latitude: randomNumber(100),
+      },
+    },
+    orbit: {
+      periapsis: randomNumber(200),
+      apoapsis: randomNumber(300),
+      inclination: randomNumber(50),
+    },
+    payload: {
+      capacity: randomNumber(22000) + 5000,
+      available: randomNumber(7000) + 2000,
+    },
+  };
+  return await fetchGraphQL(
+    `
+    mutation CreateMission($mission:  MissionInput!){
+    createMission(
+      mission: $mission
+    ) {
+      id
+      title
+      operator
+      launch {
+        date
+        vehicle
+        location {
+          name
+          longitude
+          latitude
+        }
+      }
+      orbit {
+        periapsis
+        apoapsis
+        inclination
+      }
+      payload {
+        capacity
+        available
+      }
+    }
+  }
+  `,
+    { mission: randomData }
+  );
+};
+
+interface FormValue {
+  title: string;
+  operator: string;
+}
 const Missions = (): JSX.Element => {
   const [missions, setMissions] = useState<Mission[] | null>(null);
   const [newMissionOpen, setNewMissionOpen] = useState(false);
@@ -79,6 +160,10 @@ const Missions = (): JSX.Element => {
   const [sortDesc, setSortDesc] = useState<boolean>(false);
   const [sortField, setSortField] = useState<SortField>("Title");
   const [errMessage, setErrMessage] = useState<String | null>(null);
+  const [formValue, setFormValue] = useState<FormValue>({
+    title: "",
+    operator: "",
+  });
 
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
@@ -88,10 +173,27 @@ const Missions = (): JSX.Element => {
   const handleNewMissionOpen = () => {
     setTempLaunchDate(null);
     setNewMissionOpen(true);
+    setFormValue({ title: "", operator: "" });
   };
 
   const handleNewMissionClose = () => {
     setNewMissionOpen(false);
+  };
+
+  const handleSetFormValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, name } = e.target;
+    setFormValue({
+      ...formValue,
+      [name]: value,
+    });
+  };
+
+  const handleSubmitNewMission = async () => {
+    await createMissions({
+      ...formValue,
+      date: tempLaunchDate,
+    });
+    handleNewMissionClose();
   };
 
   const handleTempLaunchDateChange = (newValue: Date | null) => {
@@ -188,18 +290,22 @@ const Missions = (): JSX.Element => {
                 <TextField
                   autoFocus
                   id="name"
-                  label="Name"
+                  label="Title"
+                  name="title"
                   variant="standard"
                   fullWidth
+                  onChange={handleSetFormValue}
                 />
               </Grid>
               <Grid item>
                 <TextField
                   autoFocus
                   id="desc"
-                  label="Description"
+                  label="Operator"
                   variant="standard"
+                  name="operator"
                   fullWidth
+                  onChange={handleSetFormValue}
                 />
               </Grid>
 
@@ -221,7 +327,7 @@ const Missions = (): JSX.Element => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleNewMissionClose}>Cancel</Button>
-            <Button onClick={handleNewMissionClose}>Save</Button>
+            <Button onClick={handleSubmitNewMission}>Save</Button>
           </DialogActions>
         </Dialog>
       </Container>

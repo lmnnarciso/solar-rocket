@@ -42,6 +42,6 @@ export const CreateMission = (mission: Mission): Mission => {
     .update(uuidv4())
     .digest("hex")
     .substring(32);
-
+  
   return mission;
 };

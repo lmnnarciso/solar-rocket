@@ -44,9 +44,9 @@ const getMissions = async (
 };
 
 const Weather = (): JSX.Element => {
-  const [sortField, setSortField] = useState<SortField>("Title");
+  const [sortField /*setSortField*/] = useState<SortField>("Title");
   const [missions, setMissions] = useState<Mission[] | null>(null);
-  const [errMessage, setErrMessage] = useState<String | null>(null);
+  const [, /*errMessage*/ setErrMessage] = useState<String | null>(null);
   const [sortDesc] = useState<boolean>(false);
 
   useEffect(() => {
@@ -60,7 +60,6 @@ const Weather = (): JSX.Element => {
       });
   }, [sortField, sortDesc]);
 
-  console.log({ missions });
   return (
     <AppLayout title="Weather">
       <Container maxWidth="xl">
@@ -79,7 +78,6 @@ const Weather = (): JSX.Element => {
               }}
             >
               <Suspense fallback={<p>Loading...</p>}>
-                {/* <Location location={mission.launch.location.name} /> */}
                 <LocationForecast location={mission.launch.location.name} />
               </Suspense>
             </Grid>

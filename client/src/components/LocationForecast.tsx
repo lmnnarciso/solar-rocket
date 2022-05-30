@@ -56,7 +56,7 @@ interface ForecastData {
 }
 
 const Location = ({ location }: { location: String }): JSX.Element => {
-  const { data, error } = useFetch<ForecastData>(
+  const { data } = useFetch<ForecastData>(
     `https://api.weatherapi.com/v1/forecast.json?key=3848974e0ab04c84919160311223005&q=${location}&days=5&aqi=no&alerts=no`
   );
 
@@ -126,13 +126,13 @@ const Location = ({ location }: { location: String }): JSX.Element => {
   return <></>;
 };
 
-interface DayInfo {
+interface DayInfoInterface {
   label: string;
   info: string | number;
   icon: JSX.Element;
 }
 
-const DayInfo = ({ label, info, icon }: DayInfo) => {
+const DayInfo = ({ label, info, icon }: DayInfoInterface) => {
   return (
     <Grid item xs={6}>
       <Box sx={{ display: "flex" }}>
