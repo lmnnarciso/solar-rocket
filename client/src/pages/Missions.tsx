@@ -189,10 +189,15 @@ const Missions = (): JSX.Element => {
   };
 
   const handleSubmitNewMission = async () => {
-    await createMissions({
+    const mission = await createMissions({
       ...formValue,
       date: tempLaunchDate,
     });
+    if (missions) {
+      setMissions([...missions, mission.data.createMission]);
+    } else {
+      setMissions([mission.data.createMission]);
+    }
     handleNewMissionClose();
   };
 
