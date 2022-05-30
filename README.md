@@ -27,7 +27,7 @@ This is a simple project designed to not only test your React skills, but also t
 
 ## Extra Credit (if you really want to impress us 😊)
 - [x] 1. Add the ability for users to modify and delete missions. - DONE
-- [ ] 2. Add any other improvements that you think the mission page can use.
+- [x] 2. Add any other improvements that you think the mission page can use. - ADDED COLOR THEMING
 
 &nbsp;
 # Good Luck!
