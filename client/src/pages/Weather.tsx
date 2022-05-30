@@ -1,19 +1,8 @@
 import React, { Suspense, useEffect, useState, lazy } from "react";
-import {
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  CardMedia,
-  Grid,
-} from "@mui/material";
+import { Container, Typography, Grid } from "@mui/material";
 import { AppLayout } from "../layouts/AppLayout";
 import fetchGraphQL from "../graphql/GraphQL";
 import { Mission } from "../graphql/schema";
-import useFetch from "../hooks/useFetch";
-import { GiSunset, GiSunrise, GiSunRadiations } from "react-icons/gi";
-import { BsCloudRain } from "react-icons/bs";
 
 const LocationForecast = lazy(() => import("../components/LocationForecast"));
 
